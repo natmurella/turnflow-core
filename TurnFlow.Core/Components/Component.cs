@@ -1,7 +1,9 @@
 
 
+using System;
 using System.Collections.Generic;
-using TurnFlow.Core.Components.Processors;
+using TurnFlow.Core.Components.Managers;
+using TurnFlow.Core.Components.Plans.Processors;
 
 namespace TurnFlow.Core.Components;
 
@@ -21,20 +23,20 @@ public class Component : IComponent
         groupUsedForCalculation = null;
     }
 
-    public Component(IProcessor processor) : this()
+    public Component(IProcessor processor, ComponentDependencyGroup g) : this()
     {
         this.processor = processor;
-        groupUsedForCalculation = new ComponentDependencyGroup();
-        processor.ApplyDependecyGroup(groupUsedForCalculation);
+        this.groupUsedForCalculation = g;
+        g.MarkChanged();
     }
 
-    public int Read()
+    public int Read(IComponentManager componentManager)
     {
         if (this.processor is IProcessor p && groupUsedForCalculation is ComponentDependencyGroup g)
         {
             if (g.HasChanged())
             {
-                this.value = p.Recalculate();
+                this.value = p.Recalculate(componentManager);
                 g.MarkCalculated();
             }
         }
@@ -57,11 +59,17 @@ public class Component : IComponent
         }
     }
 
-    public void Remove(int value)
+    // returns whether the final values is 0 or not.
+    public bool Remove(int value)
     {
         if (value == 0)
         {
-            return;
+            return false;
+        }
+
+        if (this.value < value)
+        {
+            throw new InvalidOperationException($"Component.Remove: Attempting to remove {value} from component with value {this.value}.");
         }
 
         this.value -= value;
@@ -70,6 +78,8 @@ public class Component : IComponent
         {
             group.MarkChanged();
         }
+
+        return this.value == 0;
     }
 
     public void AddToGroup(ComponentDependencyGroup group)
