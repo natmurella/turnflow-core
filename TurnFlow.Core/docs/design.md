@@ -57,13 +57,108 @@ $$
 \text{bar\_max}_{health} = \text{round}(( \text{bf}_{health} + \text{bs}_{health}) \times \text{bm}_{health} )
 $$
 
+##### Bar Costs
+Primary:
+- bar_cost_{barName}_add_flat
+- bar_cost_{barName}_min_flat
+- bar_cost_{barName}_add_mult
+- bar_cost_{barName}_min_mult
+Sparse Primary: (prefix: "bar_cost_force_{barName}_")
+- bar_cost_force_{barName}_force_zero
+Sparse Primary: (prefix: "bar_cost_bar_{barName}_")
+- bar_cost_bar_{barName}_{otherBarName}_add_mult
+- bar_cost_bar_{barName}_{otherBarName}_min_mult
+Sparse Primary: (prefix: "bar_cost_resource_{barName}_")
+- bar_cost_resource_{barName}_{resourceName}_add_mult
+- bar_cost_resource_{barName}_{resourceName}_min_mult
+secondary:
+- bar_cost_{barName}
+
 ##### Resources
 Primary:
 - resource_{resourceName}
 
+##### Resource Costs
+Primary:
+- resource_cost_{resourceName}_add_flat
+- resource_cost_{resourceName}_min_flat
+- resource_cost_{resourceName}_add_mult
+- resource_cost_{resourceName}_min_mult
+Sparse Primary: (prefix: "resource_cost_force_{resourceName}_")
+- resource_cost_force_{resourceName}_force_zero
+Sparse Primary: (prefix: "resource_cost_resource_{resourceName}_")
+- resource_cost_resource_{resourceName}_{otherResourceName}_add_mult
+- resource_cost_resource_{resourceName}_{otherResourceName}_min_mult
+Sparse Primary: (prefix: "resource_cost_bar_{resourceName}_")
+- resource_cost_bar_{resourceName}_{barName}_add_mult
+- resource_cost_bar_{resourceName}_{barName}_min_mult
+Secondary:
+- resource_cost_{resourceName}
 
 #### Enum Names
 
 - "stats"
 - "bars"
 - "resources"
+
+
+
+
+### Action Hierarchy
+
+Characters interact with the system through discrete actions (ie: turn-based games). 
+- actions: can ONLY put effects on the effects stack, and put triggers in the trigger list.
+- triggers: can ONLY put effects on the effect stack.
+- effects: can ONLY interact with mechanics.
+- mechanics: are the ONLY level able to interact with the component manager, and thus change the state of the character.
+
+Effects are independent of each other, and do not pass information between each other within the action.
+Instead, use triggers to react to effects.
+Example: an attack that heal for damage dealt.
+    - DO NOT: have the action do a damage effect, return the damage value, then do a heal effect with that value.
+    - DO: have the action set a trigger to heal when damage is dealt, the fire the damage effect. make sure the trigger is scoped to fade on the action's full resolution.
+This way the whole system is more flexible to drastic changes is character state.
+Effects registered from an Action are resolved on placement of the effectstack. 
+
+Actions have a cost, which must be a resource or current bar value. all other primary and secondary modifiers are OFF LIMITS.
+Actions costs cannot give resources/bars (at least not directly). To give resources/bars, use effects on the effect stack.
+For Example: if i want to spen my ability points (a resource) on a new skill. that skill's cost would be 1 ability point. But if later i want to reset all skill, refunding all points, I would put not cost on the action unequip, and instead have it give +1 ability point effect.
+
+
+### Action Modifiers
+
+#### Targeting Modifiers
+
+Defines targeting rules for an action. These are applied at the start of CanCastTarget(), and removed at the end. 
+The Exclude modifier, is >= 1 forces exclusion, regardless of number of includes.
+If both include and exclude are 0, then the target is excluded by default. In general, ability targeting plans should not apply exclude modifiers (done by opponents instead).
+
+Primary:
+- action_target_include_self
+- action_target_include_allies
+- action_target_include_enemies
+- action_target_exclude_self
+- action_target_exclude_allies
+- action_target_exclude_enemies
+
+#### 
+
+### Trigger Types
+
+#### Action Trigger Types
+
+Costs:
+- on_action_cost_open
+- on_action_cost_close
+Targeting:
+- on_action_targeting_open
+- on_action_targeting_close
+Activate:
+- on_action_activate_open
+- on_action_activate_close
+Equip:
+- on_action_equip_open
+- on_action_equip_close
+Unequip:
+- on_action_unequip_open
+- on_action_unequip_close
