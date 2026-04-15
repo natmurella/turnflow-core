@@ -162,3 +162,27 @@ Equip:
 Unequip:
 - on_action_unequip_open
 - on_action_unequip_close
+
+
+### Damage Change Types
+
+Damage change types define what bars and in what order are affected by damage or healing. They are used in the damage and healing mechanics to determine how to apply the changes to the character's bars.
+
+restricted damage change types:
+- cost: only used when paying action costs.
+
+Examples:
+- piercing: damage is applied to health, bypassing armor.
+- slashing: damage must be applied to armor first, then health.
+- magic: damage is applied to magic armor first, then health.
+
+### Damage Element Types
+
+Damage element types define specific damage types that can be affected by bonuses or resistances, without changing the order from damage change type.
+
+restricted damage element types:
+- cost: only used when paying action costs.
+
+Examples:
+- fire: damage can be reduced by fire resistance, and increased by fire bonuses.
+- ice: damage can be reduced by ice resistance, and increased by ice bonuses.

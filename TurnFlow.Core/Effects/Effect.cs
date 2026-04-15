@@ -16,8 +16,5 @@ public abstract class Effect : IEffect
         this.target = target;
     }
 
-    public virtual void Execute()
-    {
-        
-    }
+    public abstract void Execute();
 }
