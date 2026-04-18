@@ -13,12 +13,16 @@ public class CharacterComponentManager : BaseComponentManager
     public CharacterComponentManager(
         StatPlan statPlan,
         BarPlan barPlan,
-        ResourcePlan resourcePlan
+        ResourcePlan resourcePlan,
+        DamageChangePlan damageChangePlan,
+        DamageElementPlan damageElementPlan
     ) : base()
     {
         CompileStatPlan(statPlan);
         CompileBarPlan(barPlan);
         CompileResourcePlan(resourcePlan);
+        CompileDamageChangePlan(damageChangePlan);
+        CompileDamageElementPlan(damageElementPlan);
     }
 
     private void CompileStatPlan(StatPlan statPlan)
@@ -151,5 +155,54 @@ public class CharacterComponentManager : BaseComponentManager
             Component c = new Component();
             components[componentName] = c;
         }
+    }
+
+    private void CompileDamageChangePlan(DamageChangePlan damageChangePlan)
+    {
+        
+        List<string> damageChangeEnum = new List<string>();
+
+        foreach (var damageChangeDef in damageChangePlan.damageChanges)
+        {
+            string changeName = damageChangeDef.damageChangeTypeName;
+            damageChangeEnum.Add(changeName);
+
+            string damageChangeSparsePrefix = $"damage_change_base_{changeName}_";
+            this.sparse_prefix_trie.Insert(damageChangeSparsePrefix);
+
+            foreach (var bar in damageChangeDef.barOrder)
+            {
+                string barName = bar.barName;
+                string sparseDamageChangeComponentName = $"{damageChangeSparsePrefix}{barName}_on";
+                this.Add(sparseDamageChangeComponentName, 1);
+            }
+
+            string damageChangeComponentNamePrefix = $"damage_change_{changeName}_";
+
+            foreach (var bar in this.enums["bars"])
+            {
+                string onName = $"{damageChangeComponentNamePrefix}{bar}_on";
+                string offName = $"{damageChangeComponentNamePrefix}{bar}_off";
+                this.Add(onName, 0);
+                this.Add(offName, 0);
+            }
+        }
+
+        // add enum for damage change types
+        this.enums["damage_changes"] = damageChangeEnum;
+    }
+
+    private void CompileDamageElementPlan(DamageElementPlan damageElementPlan)
+    {
+        List<string> damageElementEnum = new List<string>();
+
+        foreach (var damageElementDef in damageElementPlan.damageElements)
+        {
+            string elementName = damageElementDef.damageElementName;
+            damageElementEnum.Add(elementName);
+        }
+
+        // add enum for damage element types
+        this.enums["damage_elements"] = damageElementEnum;
     }
 }

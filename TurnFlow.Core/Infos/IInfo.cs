@@ -8,13 +8,19 @@ using TurnFlow.Core.Triggers;
 
 namespace TurnFlow.Core.Infos;
 
-public interface IInfo
+public interface IInfo : IDamageInfo
 {
+    // constructors
 
-    public ITrigger? FromTrigger();
-    public IEffect? FromEffect();
-    public IAction? FromAction();
-    public ICharacter? FromCharacter();
+    // base
+    public void SetTrigger(ITrigger trigger);
+    public void SetEffect(IEffect effect);
+    public void SetAction(IAction action);
+    public void SetFromCharacter(ICharacter fromCharacter);
+    public void SetToCharacter(ICharacter toCharacter);
 
-    public int GetDetails(String deatilName);
+    // damage info
+    public void SetDamageChangeType(String damageChangeType);
+    public void SetDamageElementType(String damageElementType);
+    public void SetDamageAmount(int damageAmount);
 }

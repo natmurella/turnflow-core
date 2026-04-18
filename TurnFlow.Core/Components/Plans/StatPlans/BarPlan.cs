@@ -12,6 +12,7 @@ public struct BarDef
 {
     public string barName;
     public BarResetType resetType;
+    public bool allowOverMax;
     public BarMaxCalcType maxCalcType;
     public int maxValue;
     public int baseBarValue;

@@ -26,8 +26,9 @@ public abstract class Trigger : ITrigger
     {
         return triggerType;
     }
-    public virtual void Fire(string triggerType, ICharacter target, IInfo info)
+    public virtual void Fire(string triggerType, IInfo info)
     {
-        
+        ICharacter target = info.ToCharacter();
+        // todo
     }
 }

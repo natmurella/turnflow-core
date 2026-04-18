@@ -16,5 +16,4 @@ public struct DamageChangeDef
 public struct DamageChangeBarDef
 {
     public string barName;
-    public bool isIgnored;
 }

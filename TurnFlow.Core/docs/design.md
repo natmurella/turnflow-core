@@ -100,6 +100,7 @@ Secondary:
 - "stats"
 - "bars"
 - "resources"
+- "damage_changes"
 
 
 
@@ -110,7 +111,7 @@ Characters interact with the system through discrete actions (ie: turn-based gam
 - actions: can ONLY put effects on the effects stack, and put triggers in the trigger list.
 - triggers: can ONLY put effects on the effect stack.
 - effects: can ONLY interact with mechanics.
-- mechanics: are the ONLY level able to interact with the component manager, and thus change the state of the character.
+- mechanics: are the ONLY level able to interact with the component manager, and thus change the state of the character. mechanics should return a list of triggers to be triggered.
 
 Effects are independent of each other, and do not pass information between each other within the action.
 Instead, use triggers to react to effects.
@@ -163,6 +164,18 @@ Unequip:
 - on_action_unequip_open
 - on_action_unequip_close
 
+#### Effect Trigger Types
+
+Damage Changes:
+- on_damage_change_calc_open
+- on_damage_change_calc_close
+Damage Elements:
+- on_damage_element_calc_open
+- on_damage_element_calc_close
+Damage Amounts:
+- on_damage_amount_calc_open
+- on_damage_amount_calc_close
+
 
 ### Damage Change Types
 
@@ -176,6 +189,12 @@ Examples:
 - slashing: damage must be applied to armor first, then health.
 - magic: damage is applied to magic armor first, then health.
 
+Primary:
+- damage_change_{changeType}_{barName}_on
+- damage_change_{changeType}_{barName}_off
+Sparse Primary: (prefix: "damage_change_base_{changeType}_")
+- damage_change_base_{changeType}_{barName}_on
+
 ### Damage Element Types
 
 Damage element types define specific damage types that can be affected by bonuses or resistances, without changing the order from damage change type.
@@ -186,3 +205,26 @@ restricted damage element types:
 Examples:
 - fire: damage can be reduced by fire resistance, and increased by fire bonuses.
 - ice: damage can be reduced by ice resistance, and increased by ice bonuses.
+
+
+### Damage / Healing Modifiers
+
+damage and healing modifiers are defined below. They are simplified, such that if, for example, you want to increase fire damage by 3, then you must add 3 to damage_add_flat.
+Do this through a scoped trigger at the action level, triggering when an action 
+
+Primary:
+- damage_add_flat
+- damage_min_flat
+- damage_add_mult
+- damage_min_mult
+- heal_add_flat
+- heal_min_flat
+- heal_add_mult
+- heal_min_mult
+
+
+### Info Definition
+
+Infos are the main way to pass information trough to triggers. They are separated into two interfaces:
+- IInfo: seen in action and effect resolution.  Contains the full scope of information, but is generally not safe to interact with. Interaction should generally be done within mechanics.
+- I<type>Info: seen in triggers. Contains a limited scope of information, but is safe to interact with. Is only readable.

@@ -7,7 +7,7 @@ using TurnFlow.Core.Effects;
 using TurnFlow.Core.Infos;
 using TurnFlow.Core.Triggers;
 
-namespace TurnFlow.Core.Managers;
+namespace TurnFlow.Core.Managers.Engines;
 
 public interface ITriggerEngine
 {
@@ -22,7 +22,6 @@ public interface ITriggerEngine
 
     public void Trigger(
         String triggerType,
-        ICharacter target,
         IInfo info
     );
 }

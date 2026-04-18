@@ -2,6 +2,7 @@
 
 using TurnFlow.Core.Actions.Plans;
 using TurnFlow.Core.Characters;
+using TurnFlow.Core.Managers.Handles;
 
 namespace TurnFlow.Core.Actions;
 
@@ -21,18 +22,18 @@ public class CustomAction : Action
         baseCustomPlan = customPlan;
     }
 
-    protected override  void ActivateAction(ICharacter source, ICharacter target)
+    protected override  void ActivateAction(IActionHandle engine, ICharacter source, ICharacter target)
     {
-        
+        // todo
     }
 
-    protected override void EquipAction(ICharacter source)
+    protected override void EquipAction(IActionHandle engine, ICharacter source)
     {
-        
+        // todo
     }
 
-    protected override void UnequipAction(ICharacter source)
+    protected override void UnequipAction(IActionHandle engine, ICharacter source)
     {
-        
+        // todo
     }
 }

@@ -9,5 +9,5 @@ public interface ITrigger
 {
     public bool IsDurationZero();
     public string GetTriggerType();
-    public void Fire(string triggerType, ICharacter target, IInfo info);
+    public void Fire(string triggerType, IInfo info);
 }

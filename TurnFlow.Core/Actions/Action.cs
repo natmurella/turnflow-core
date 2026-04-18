@@ -2,6 +2,7 @@
 
 using TurnFlow.Core.Actions.Plans;
 using TurnFlow.Core.Characters;
+using TurnFlow.Core.Managers.Handles;
 
 namespace TurnFlow.Core.Actions;
 
@@ -82,13 +83,13 @@ public abstract class Action : IAction
         // todo
     }
 
-    public void Activate(ICharacter source, ICharacter target)
+    public void Activate(IActionHandle engine, ICharacter source, ICharacter target)
     {
         CostPlan trueCost = CalculateTrueCostPlan(source, target, baseActivateCostPlan);
         PayCost(source, trueCost);
 
         // todo trigger: on_action_activate_open
-        ActivateAction(source, target);
+        ActivateAction(engine, source, target);
         // todo trigger: on_action_activate_close
     }
     
@@ -98,13 +99,13 @@ public abstract class Action : IAction
         return CanPayCost(source, trueCost);
     }
 
-    public void Equip(ICharacter source)
+    public void Equip(IActionHandle engine, ICharacter source)
     {
         CostPlan trueCost = CalculateTrueCostPlan(source, baseEquipCostPlan);
         PayCost(source, trueCost);
 
         // todo trigger: on_action_equip_open
-        EquipAction(source);
+        EquipAction(engine, source);
         // todo trigger: on_action_equip_close
     }
 
@@ -114,19 +115,19 @@ public abstract class Action : IAction
         return CanPayCost(source, trueCost);
     }
 
-    public void Unequip(ICharacter source)
+    public void Unequip(IActionHandle engine, ICharacter source)
     {
         CostPlan trueCost = CalculateTrueCostPlan(source, baseUnequipCostPlan);
         PayCost(source, trueCost);
 
         // todo trigger: on_action_unequip_open
-        UnequipAction(source);
+        UnequipAction(engine, source);
         // todo trigger: on_action_unequip_close
     }
 
-    protected abstract void ActivateAction(ICharacter source, ICharacter target);
+    protected abstract void ActivateAction(IActionHandle engine, ICharacter source, ICharacter target);
 
-    protected abstract void EquipAction(ICharacter source);
+    protected abstract void EquipAction(IActionHandle engine, ICharacter source);
 
-    protected abstract void UnequipAction(ICharacter source);
+    protected abstract void UnequipAction(IActionHandle engine, ICharacter source);
 }

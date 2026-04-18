@@ -7,11 +7,12 @@ using TurnFlow.Core.Actions;
 using TurnFlow.Core.Characters;
 using TurnFlow.Core.Effects;
 using TurnFlow.Core.Infos;
+using TurnFlow.Core.Managers.Handles;
 using TurnFlow.Core.Triggers;
 
-namespace TurnFlow.Core.Managers;
+namespace TurnFlow.Core.Managers.Engines;
 
-public class TriggerEngine : ITriggerEngine
+public class TriggerEngine : ITriggerEngine, IEffectHandle, IActionHandle, IExecuteEffectHandle
 {
     private Dictionary<string, List<ITrigger>> triggerList;
     private Stack<IEffect> effectStack;
@@ -45,7 +46,6 @@ public class TriggerEngine : ITriggerEngine
 
     public void Trigger(
         string triggerType,
-        ICharacter target,
         IInfo info
     )
     {
@@ -61,7 +61,6 @@ public class TriggerEngine : ITriggerEngine
         {
             t.Fire(
                 triggerType,
-                target,
                 info
             );
 
@@ -78,6 +77,17 @@ public class TriggerEngine : ITriggerEngine
         else
         {
             triggerList[triggerType] = triggersToKeep;
+        }
+    }
+
+    public void TriggerAll(List<TriggerParams> triggerParamsList)
+    {
+        foreach (TriggerParams triggerParams in triggerParamsList)
+        {
+            Trigger(
+                triggerParams.triggerType,
+                triggerParams.info
+            );
         }
     }
 }
