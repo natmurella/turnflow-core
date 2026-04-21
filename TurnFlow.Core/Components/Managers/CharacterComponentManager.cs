@@ -18,11 +18,32 @@ public class CharacterComponentManager : BaseComponentManager
         DamageElementPlan damageElementPlan
     ) : base()
     {
+        CompileGeneralPlan();
         CompileStatPlan(statPlan);
         CompileBarPlan(barPlan);
         CompileResourcePlan(resourcePlan);
         CompileDamageChangePlan(damageChangePlan);
         CompileDamageElementPlan(damageElementPlan);
+    }
+
+    private void CompileGeneralPlan()
+    {
+        // damage modifiers
+        List<string> stat_suffixes = new List<string>
+        {
+            "add_flat",
+            "min_flat",
+            "add_mult",
+            "min_mult",
+        };
+        foreach (var suffix in stat_suffixes)
+        {
+            string componentName = $"damage_{suffix}";
+            Component c = new Component();
+            components[componentName] = c;
+        }
+        // set default multiplier to 100%
+        this.Add("damage_add_mult", 100);
     }
 
     private void CompileStatPlan(StatPlan statPlan)
@@ -64,6 +85,10 @@ public class CharacterComponentManager : BaseComponentManager
             StatProcessor sp = new StatProcessor(componentsToUse);
             Component secondaryComponent = new Component(sp, g);
             components[secondaryComponentName] = secondaryComponent;
+
+            // damage modifiers
+            string damageSourceModifierPrefix = $"damage_stat_source_{statName}_add_mult";
+            components[damageSourceModifierPrefix] = new Component();
         }
 
         // add enum for stats
@@ -167,25 +192,13 @@ public class CharacterComponentManager : BaseComponentManager
             string changeName = damageChangeDef.damageChangeTypeName;
             damageChangeEnum.Add(changeName);
 
-            string damageChangeSparsePrefix = $"damage_change_base_{changeName}_";
-            this.sparse_prefix_trie.Insert(damageChangeSparsePrefix);
+            string damageChangePrefix = $"damage_change_{changeName}_";
 
-            foreach (var bar in damageChangeDef.barOrder)
-            {
-                string barName = bar.barName;
-                string sparseDamageChangeComponentName = $"{damageChangeSparsePrefix}{barName}_on";
-                this.Add(sparseDamageChangeComponentName, 1);
-            }
+            string on_change = $"{damageChangePrefix}on";
+            string off_change = $"{damageChangePrefix}off";
 
-            string damageChangeComponentNamePrefix = $"damage_change_{changeName}_";
-
-            foreach (var bar in this.enums["bars"])
-            {
-                string onName = $"{damageChangeComponentNamePrefix}{bar}_on";
-                string offName = $"{damageChangeComponentNamePrefix}{bar}_off";
-                this.Add(onName, 0);
-                this.Add(offName, 0);
-            }
+            this.Add(on_change, 0);
+            this.Add(off_change, 0);
         }
 
         // add enum for damage change types
@@ -200,6 +213,14 @@ public class CharacterComponentManager : BaseComponentManager
         {
             string elementName = damageElementDef.damageElementName;
             damageElementEnum.Add(elementName);
+
+            string damageElementPrefix = $"damage_element_{elementName}_";
+
+            string on_element = $"{damageElementPrefix}on";
+            string off_element = $"{damageElementPrefix}off";
+
+            this.Add(on_element, 0);
+            this.Add(off_element, 0);
         }
 
         // add enum for damage element types

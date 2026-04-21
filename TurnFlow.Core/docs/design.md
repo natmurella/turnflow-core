@@ -128,6 +128,8 @@ For Example: if i want to spen my ability points (a resource) on a new skill. th
 
 ### Action Modifiers
 
+These all affect the action in some way. these are usually set with triggers or other effects, scope for a specific action. All actions will look at these modifiers when they are being used.
+
 #### Targeting Modifiers
 
 Defines targeting rules for an action. These are applied at the start of CanCastTarget(), and removed at the end. 
@@ -142,7 +144,37 @@ Primary:
 - action_target_exclude_allies
 - action_target_exclude_enemies
 
-#### 
+#### Damage Change Modifers
+
+Determines the damage_change_type of a damaging effect. if off, overrides on. 
+
+// todo: switch to a priority system instead of static on/off. this currently will have wierd effects with mulitple sources of change.
+
+Primary:
+- damage_change_{changeType}_on
+- damage_change_{changeType}_off
+
+#### Damage Element Modifiers
+
+Determines the damage_element_type of a damaging effect. if off, overrides on.
+
+// todo: same issue.
+
+Primary:
+- damage_element_{elementType}_on
+- damage_element_{elementType}_off
+
+#### Damage / Healing Calculation Modifiers
+
+Determines the damage and healing modifiers of a damaging or healing effect. all damage/healing actions must get information from these.
+
+Primary:
+- damage_add_flat
+- damage_min_flat
+- damage_add_mult
+- damage_min_mult
+Primary:
+- damage_stat_source_{statName}_add_mult // adding percentage of own stat to damage/healing
 
 ### Trigger Types
 
@@ -167,11 +199,11 @@ Unequip:
 #### Effect Trigger Types
 
 Damage Changes:
-- on_damage_change_calc_open
-- on_damage_change_calc_close
+- on_damage_change_resolve_open
+- on_damage_change_resolve_close
 Damage Elements:
-- on_damage_element_calc_open
-- on_damage_element_calc_close
+- on_damage_element_resolve_open
+- on_damage_element_resolve_close
 Damage Amounts:
 - on_damage_amount_calc_open
 - on_damage_amount_calc_close
@@ -188,12 +220,6 @@ Examples:
 - piercing: damage is applied to health, bypassing armor.
 - slashing: damage must be applied to armor first, then health.
 - magic: damage is applied to magic armor first, then health.
-
-Primary:
-- damage_change_{changeType}_{barName}_on
-- damage_change_{changeType}_{barName}_off
-Sparse Primary: (prefix: "damage_change_base_{changeType}_")
-- damage_change_base_{changeType}_{barName}_on
 
 ### Damage Element Types
 

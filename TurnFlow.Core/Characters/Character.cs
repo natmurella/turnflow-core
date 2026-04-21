@@ -1,5 +1,7 @@
 using System;
+using System.ComponentModel;
 using System.Text;
+using TurnFlow.Core.Components.Managers;
 
 namespace TurnFlow.Core.Characters;
 
@@ -7,15 +9,28 @@ namespace TurnFlow.Core.Characters;
 
 public class Character : ICharacter
 {
-    public string Name { get; private set; }
+    public string name { get; private set; }
+    public IComponentManager componentManager;
 
-    public Character(string name)
+    public Character(string name, IComponentManager componentManager)
     {
-        Name = name;
+        this.componentManager = componentManager;
+        this.name = name;
+    }
+
+    public Character(IComponentManager componentManager)
+    {
+        this.componentManager = componentManager;
+        this.name = "unknown";
     }
 
     public string GetName()
     {
-        return Name;
+        return this.name;
+    }
+
+    public IComponentManager GetComponentManager()
+    {
+        return this.componentManager;
     }
 }

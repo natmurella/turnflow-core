@@ -5,12 +5,13 @@ using System;
 using System.Runtime.CompilerServices;
 using TurnFlow.Core.Actions;
 using TurnFlow.Core.Characters;
+using TurnFlow.Core.Effects.Plans;
 using TurnFlow.Core.Infos;
 using TurnFlow.Core.Managers.Handles;
 using TurnFlow.Core.Mechanics;
 using TurnFlow.Core.Triggers;
 
-namespace TurnFlow.Core.Effects;
+namespace TurnFlow.Core.Effects.BasicEffects;
 
 public abstract class DamageEffect : IEffect
 {
@@ -18,39 +19,34 @@ public abstract class DamageEffect : IEffect
     private ICharacter target;
     private IAction? sourceAction;
     private ITrigger? sourceTrigger;
-    private String damageChange;
-    private String damageElement;
+    private readonly DamageEffectPlan damageEffectPlan;
 
     public DamageEffect(
         IAction action,
         ICharacter source, 
         ICharacter target,
-        String damageChange,
-        String damageElement
+        DamageEffectPlan damageEffectPlan
     )
     {
         this.source = source;
         this.target = target;
         this.sourceAction = action;
         this.sourceTrigger = null;
-        this.damageChange = damageChange;
-        this.damageElement = damageElement;
+        this.damageEffectPlan = damageEffectPlan;
     }
 
     public DamageEffect(
         ITrigger trigger,
         ICharacter source, 
         ICharacter target,
-        String damageChange,
-        String damageElement
+        DamageEffectPlan damageEffectPlan
     )
     {
         this.source = source;
         this.target = target;
         this.sourceAction = null;
         this.sourceTrigger = trigger;
-        this.damageChange = damageChange;
-        this.damageElement = damageElement;
+        this.damageEffectPlan = damageEffectPlan;
     }
 
     public void ExecuteEffect(IExecuteEffectHandle engine)
@@ -72,24 +68,24 @@ public abstract class DamageEffect : IEffect
 
         // trigger damage change calc
         engine.Trigger(
-            "on_damage_change_calc_open",
+            "on_damage_change_resolve_open",
             info
         );
-        String damageChangeType = CalculateDamageChangeType(this.damageChange, source);
+        String damageChangeType = ResolveDamageChangeType();
         engine.Trigger(
-            "on_damage_change_calc_close",
+            "on_damage_change_resolve_close",
             info
         );
         info.SetDamageChangeType(damageChangeType);
 
         // trigger damage element calc
         engine.Trigger(
-            "on_damage_element_calc_open",
+            "on_damage_element_resolve_open",
             info
         );
-        String damageElementType = CalculateDamageElementType(this.damageElement, source);
+        String damageElementType = ResolveDamageElementType();
         engine.Trigger(
-            "on_damage_element_calc_close",
+            "on_damage_element_resolve_close",
             info
         );
         info.SetDamageElementType(damageElementType);
@@ -99,7 +95,7 @@ public abstract class DamageEffect : IEffect
             "on_damage_amount_calc_open",
             info
         );
-        int damageAmount = CalculateDamageAmount(info);
+        int damageAmount = CalculateDamageAmount();
         engine.Trigger(
             "on_damage_amount_calc_close",
             info
@@ -110,17 +106,24 @@ public abstract class DamageEffect : IEffect
         Execute(engine, info);
     }
 
-    private String CalculateDamageChangeType(String baseDamageChange, ICharacter fromCharacter)
+    private String ResolveDamageChangeType()
     {
-        return BasicCollectionMechanics.CalculateDamageChangeType(baseDamageChange, fromCharacter);
+        return BasicCollectionMechanics.ResolveDamageChangeType(this.damageEffectPlan.damageChangeTypeName, this.source);
     }
 
-    private String CalculateDamageElementType(String baseDamageElement, ICharacter fromCharacter)
+    private String ResolveDamageElementType()
     {
-        return BasicCollectionMechanics.CalculateDamageElementType(baseDamageElement, fromCharacter);
+        return BasicCollectionMechanics.ResolveDamageElementType(this.damageEffectPlan.damageElementName, this.source);
     }
 
-    protected abstract int CalculateDamageAmount(IInfo info);
+    private int CalculateDamageAmount()
+    {
+        return BasicCollectionMechanics.CalculateDamageAmount(
+            this.source,
+            this.target,
+            this.damageEffectPlan
+        );
+    }
 
     protected abstract void Execute(IEffectHandle engine, IInfo info);
 }
