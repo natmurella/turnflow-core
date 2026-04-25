@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TurnFlow.Core.Actions;
 using TurnFlow.Core.Characters;
 using TurnFlow.Core.Effects;
+using TurnFlow.Core.Effects.Plans;
 using TurnFlow.Core.Triggers;
 
 namespace TurnFlow.Core.Infos;
@@ -19,6 +20,7 @@ public  class Info : IInfo
     protected ICharacter toCharacter;
     
     // damage info
+    protected DamageDirectionType? damageDirectionType;
     protected String? damageChangeType;
     protected String? damageElementType;
     protected int? damageAmount;
@@ -116,6 +118,11 @@ public  class Info : IInfo
 
     // damage info
 
+    public void SetDamageDirectionType(DamageDirectionType damageDirectionType)
+    {
+        this.damageDirectionType = damageDirectionType;
+    }
+
     public void SetDamageChangeType(String damageChangeType)
     {
         this.damageChangeType = damageChangeType;
@@ -129,6 +136,15 @@ public  class Info : IInfo
     public void SetDamageAmount(int damageAmount)
     {
         this.damageAmount = damageAmount;
+    }
+
+    public DamageDirectionType GetDamageDirectionType()
+    {
+        if (damageDirectionType == null)
+        {
+            throw new Exception("Damage direction type is not set");
+        }
+        return (DamageDirectionType)damageDirectionType;
     }
 
     public String GetDamageChangeType()

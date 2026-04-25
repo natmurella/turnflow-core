@@ -18,7 +18,8 @@ public static class BasicInteractionMechanics
 
         List<TriggerParams> triggers = new List<TriggerParams>();
 
-        // todo
+        // get amount
+        int amount = info.GetDamageAmount();
         
 
         return new List<TriggerParams>();

@@ -56,6 +56,7 @@ public abstract class DamageEffect : IEffect
         if (this.sourceAction is IAction a)
         {
             info = new Info(a, source, target);
+
         }
         else if (this.sourceTrigger is ITrigger t)
         {
@@ -65,6 +66,9 @@ public abstract class DamageEffect : IEffect
         {
             throw new Exception("Effect must have either a source action or trigger.");
         }
+
+        // set damage direction type
+        info.SetDamageDirectionType(this.damageEffectPlan.damageDirectionType);
 
         // trigger damage change calc
         engine.Trigger(
@@ -125,5 +129,8 @@ public abstract class DamageEffect : IEffect
         );
     }
 
-    protected abstract void Execute(IEffectHandle engine, IInfo info);
+    private void Execute(IEffectHandle engine, IInfo info)
+    {
+        
+    }
 }
