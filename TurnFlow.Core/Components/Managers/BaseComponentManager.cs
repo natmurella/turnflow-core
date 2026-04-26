@@ -9,17 +9,18 @@ namespace TurnFlow.Core.Components.Managers;
 public abstract class BaseComponentManager : IComponentManager
 {
     protected Dictionary<string, IComponent> components;
-    protected Dictionary<string, IComponent> sparse_components;
-    protected Dictionary<string, ComponentDependencyGroup> dependency_groups;
-    protected Trie sparse_prefix_trie;
+    protected Dictionary<string, IComponent> sparseComponents;
+    protected Dictionary<string, ComponentDependencyGroup> dependencyGroups;
+    protected Dictionary<string, IBubbleComponent> bubbleComponents;
+    protected Trie sparsePrefixTrie;
     protected Dictionary<string, List<string>> enums;
 
     public BaseComponentManager()
     {
         components = new Dictionary<string, IComponent>();
-        sparse_components = new Dictionary<string, IComponent>();
-        dependency_groups = new Dictionary<string, ComponentDependencyGroup>();
-        sparse_prefix_trie = new Trie();
+        sparseComponents = new Dictionary<string, IComponent>();
+        dependencyGroups = new Dictionary<string, ComponentDependencyGroup>();
+        sparsePrefixTrie = new Trie();
         enums = new Dictionary<string, List<string>>();
     }
 
@@ -39,20 +40,20 @@ public abstract class BaseComponentManager : IComponentManager
             component.Add(value);
         } 
         // add to sparse components if it exists
-        else if (sparse_components.TryGetValue(componentName, out component))
+        else if (sparseComponents.TryGetValue(componentName, out component))
         {
             component.Add(value);
         }
         // check if matching prefix, and add to sparse component if so
-        else if (sparse_prefix_trie.FindPrefix(componentName, out prefix))
+        else if (sparsePrefixTrie.FindPrefix(componentName, out prefix))
         {
             ComponentDependencyGroup g;
-            if (dependency_groups.TryGetValue(prefix, out g))
+            if (dependencyGroups.TryGetValue(prefix, out g))
             {
                 Component c = new Component();
                 c.AddToGroup(g);
                 c.Add(value);
-                sparse_components[componentName] = c;
+                sparseComponents[componentName] = c;
             }
             else
             {
@@ -74,12 +75,12 @@ public abstract class BaseComponentManager : IComponentManager
             component.Remove(value);
         }
         // if sparse component exists, remove from it. remove from sparse if 0 after removal.
-        else if (sparse_components.TryGetValue(componentName, out component))
+        else if (sparseComponents.TryGetValue(componentName, out component))
         {
             bool is_zero = component.Remove(value);
             if (is_zero)
             {
-                sparse_components.Remove(componentName);
+                sparseComponents.Remove(componentName);
             }
         }
         else
@@ -87,6 +88,32 @@ public abstract class BaseComponentManager : IComponentManager
             throw new KeyNotFoundException($"ComponentManager.Remove: {componentName} not found.");
         }
     }
+
+    public void AddToBubble(string componentName, int value, object source, int priority=0)
+    {
+        IBubbleComponent bubbleComponent;
+        if (bubbleComponents.TryGetValue(componentName, out bubbleComponent))
+        {
+            bubbleComponent.Add(value, source, priority);
+        }
+        else
+        {
+            throw new KeyNotFoundException($"ComponentManager.AddToBubble: {componentName} not found.");
+        }
+    }
+
+    public void RemoveFromBubble(string componentName, int value, object source, int priority=0)
+    {
+        IBubbleComponent bubbleComponent;
+        if (bubbleComponents.TryGetValue(componentName, out bubbleComponent))
+        {
+            bubbleComponent.Remove(value, source, priority);
+        }
+        else
+        {
+            throw new KeyNotFoundException($"ComponentManager.RemoveFromBubble: {componentName} not found.");
+        }
+     }
 
     public int Read(string componentName)
     {
@@ -97,12 +124,12 @@ public abstract class BaseComponentManager : IComponentManager
             return component.Read(this);
         }
         // if sparse component exists, read from it
-        else if (sparse_components.TryGetValue(componentName, out component))
+        else if (sparseComponents.TryGetValue(componentName, out component))
         {
             return component.Read(this);
         }
         // if matching prefix, return 0
-        else if (sparse_prefix_trie.HasPrefix(componentName))
+        else if (sparsePrefixTrie.HasPrefix(componentName))
         {
             return 0;
         }

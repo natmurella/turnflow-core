@@ -131,6 +131,6 @@ public abstract class DamageEffect : IEffect
 
     private void Execute(IEffectHandle engine, IInfo info)
     {
-        
+        // todo
     }
 }

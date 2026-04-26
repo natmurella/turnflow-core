@@ -126,6 +126,12 @@ Actions costs cannot give resources/bars (at least not directly). To give resour
 For Example: if i want to spen my ability points (a resource) on a new skill. that skill's cost would be 1 ability point. But if later i want to reset all skill, refunding all points, I would put not cost on the action unequip, and instead have it give +1 ability point effect.
 
 
+### System Level Triggers
+
+System level triggers are not applied by actions or other effects, but are instead required for proper functionaing of the compabt system. They should not be removed by any effect, and should always be present on the trigger list. They are used to apply the basic rules of combat, such as damage application, bar hitting, etc.
+
+- 
+
 ### Action Modifiers
 
 These all affect the action in some way. these are usually set with triggers or other effects, scope for a specific action. All actions will look at these modifiers when they are being used.
@@ -163,6 +169,14 @@ Determines the damage_element_type of a damaging effect. if off, overrides on.
 Primary:
 - damage_element_{elementType}_on
 - damage_element_{elementType}_off
+
+#### Damage / Healing Bar Hitting Modifiers
+
+Determines which bars are hit by a damaging or healing effect. all damage/healing actions must get information from these.
+Uses bubble components to determine whether the bar is included.
+
+Primary:
+- damage_hit_bar_{barName}_include
 
 #### Damage / Healing Calculation Modifiers
 

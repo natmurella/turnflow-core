@@ -113,8 +113,8 @@ public class CharacterComponentManager : BaseComponentManager
             componentsToUse["prefix"] = barStatPrefix;
 
             // add prefix
-            this.dependency_groups[barStatPrefix] = g;
-            this.sparse_prefix_trie.Insert(barStatPrefix);
+            this.dependencyGroups[barStatPrefix] = g;
+            this.sparsePrefixTrie.Insert(barStatPrefix);
 
             List<string> stat_suffixes = new List<string>
             {
@@ -129,7 +129,7 @@ public class CharacterComponentManager : BaseComponentManager
                 string componentName = $"bar_max_{barName}_{suffix}";
                 Component c = new Component();
                 c.AddToGroup(g);
-                sparse_components[componentName] = c;
+                sparseComponents[componentName] = c;
                 componentsToUse[suffix] = componentName;
             }
 
@@ -165,6 +165,11 @@ public class CharacterComponentManager : BaseComponentManager
             BarProcessor bp = new BarProcessor(componentsToUse);
             Component barMaxComponent = new Component(bp, g);
             components[barMaxComponentName] = barMaxComponent;
+
+            // create bar include bubbles
+            string barIncludeBubbleComponentName = $"damage_hit_bar_{barName}_include";
+            BubbleComponent b = new BubbleComponent();
+            this.bubbleComponents[barIncludeBubbleComponentName] = b;
         }
 
         // add enum for bars
