@@ -24,6 +24,7 @@ public  class Info : IInfo
     protected String? damageChangeType;
     protected String? damageElementType;
     protected int? damageAmount;
+    protected string? damageBar;
 
 
     public Info(ITrigger? fromTrigger, IEffect? fromEffect, IAction? fromAction, ICharacter fromCharacter, ICharacter toCharacter)
@@ -53,13 +54,28 @@ public  class Info : IInfo
         this.toCharacter = toCharacter;
     }
 
-    public Info(IInfo info)
+    public Info(IInfo info, bool characterSwap=false)
     {
+        // general
         this.fromTrigger = info.FromTrigger();
         this.fromEffect = info.FromEffect();
         this.fromAction = info.FromAction();
-        this.fromCharacter = info.FromCharacter();
-        this.toCharacter = info.ToCharacter();
+        if (characterSwap)
+        {
+            this.fromCharacter = info.ToCharacter();
+            this.toCharacter = info.FromCharacter();
+        }
+        else
+        {
+            this.fromCharacter = info.FromCharacter();
+            this.toCharacter = info.ToCharacter();
+        }
+        // damage info
+        this.damageDirectionType = info.GetDamageDirectionType();
+        this.damageChangeType = info.GetDamageChangeType();
+        this.damageElementType = info.GetDamageElementType();
+        this.damageAmount = info.GetDamageAmount();
+        this.damageBar = info.GetDamageBar();
     }
 
     // general
@@ -138,6 +154,11 @@ public  class Info : IInfo
         this.damageAmount = damageAmount;
     }
 
+    public void SetDamageBar(string damageBar)
+    {
+        this.damageBar = damageBar;
+    }
+
     public DamageDirectionType GetDamageDirectionType()
     {
         if (damageDirectionType == null)
@@ -172,6 +193,15 @@ public  class Info : IInfo
             throw new Exception("Damage amount is not set");
         }
         return (int)damageAmount;
+    }
+
+    public string GetDamageBar()
+    {
+        if (damageBar == null)
+        {
+            throw new Exception("Damage bar is not set");
+        }
+        return damageBar;
     }
     
 }

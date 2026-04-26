@@ -222,6 +222,21 @@ Damage Amounts:
 - on_damage_amount_calc_open
 - on_damage_amount_calc_close
 
+#### Damage / Healing Trigger Types
+
+Damage:
+- on_damage_dealt
+- on_damage_taken
+OverDamage:
+- on_overdamage_dealt
+- on_overdamage_taken
+Healing:
+- on_heal_dealt
+- on_heal_taken
+OverHealing:
+- on_overheal_dealt
+- on_overheal_taken
+
 
 ### Damage Change Types
 

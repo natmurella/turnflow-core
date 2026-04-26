@@ -9,6 +9,11 @@ namespace TurnFlow.Core.Managers.Engines;
 public struct TriggerParams
 {
     public string triggerType;
-    public ICharacter target;
     public IInfo info;
+
+    public TriggerParams(string triggerType, IInfo info)
+    {
+        this.triggerType = triggerType;
+        this.info = info;
+    }
 }

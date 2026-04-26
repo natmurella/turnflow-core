@@ -22,4 +22,5 @@ public interface IDamageInfo
     public String GetDamageChangeType();
     public String GetDamageElementType();
     public int GetDamageAmount();
+    public string GetDamageBar();
 }

@@ -25,4 +25,5 @@ public interface IInfo : IDamageInfo
     public void SetDamageChangeType(String damageChangeType);
     public void SetDamageElementType(String damageElementType);
     public void SetDamageAmount(int damageAmount);
+    public void SetDamageBar(string damageBar);
 }
