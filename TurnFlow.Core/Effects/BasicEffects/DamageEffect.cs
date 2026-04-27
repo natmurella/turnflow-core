@@ -2,11 +2,13 @@
 
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using TurnFlow.Core.Actions;
 using TurnFlow.Core.Characters;
 using TurnFlow.Core.Effects.Plans;
 using TurnFlow.Core.Infos;
+using TurnFlow.Core.Managers.Engines;
 using TurnFlow.Core.Managers.Handles;
 using TurnFlow.Core.Mechanics;
 using TurnFlow.Core.Triggers;
@@ -107,7 +109,18 @@ public abstract class DamageEffect : IEffect
         info.SetDamageAmount(damageAmount);
 
         // execute damage
-        Execute(engine, info);
+        engine.Trigger(
+            "on_damage_execute_open",
+            info
+        );
+        List<TriggerParams> tp = Execute(info);
+        engine.Trigger(
+            "on_damage_execute_close",
+            info
+        );
+
+        // trigger all resulting triggers
+        engine.TriggerAll(tp);
     }
 
     private String ResolveDamageChangeType()
@@ -129,8 +142,8 @@ public abstract class DamageEffect : IEffect
         );
     }
 
-    private void Execute(IEffectHandle engine, IInfo info)
+    private List<TriggerParams> Execute(IInfo info)
     {
-        // todo
+        return BasicInteractionMechanics.DealDamageOrHeal(info);
     }
 }

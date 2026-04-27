@@ -9,7 +9,7 @@ using TurnFlow.Core.Triggers;
 
 namespace TurnFlow.Core.Infos;
 
-public interface IInfo : IDamageInfo
+public interface IInfo : IGeneralInfo, IDamageInfo
 {
     // constructors
 

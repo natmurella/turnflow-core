@@ -8,14 +8,8 @@ using TurnFlow.Core.Triggers;
 
 namespace TurnFlow.Core.Infos;
 
-public interface IDamageInfo
+public interface IDamageInfo : IGeneralInfo
 {
-    // general
-    public ITrigger? FromTrigger();
-    public IEffect? FromEffect();
-    public IAction? FromAction();
-    public ICharacter FromCharacter();
-    public ICharacter ToCharacter();
 
     // damage info
     public DamageDirectionType GetDamageDirectionType();

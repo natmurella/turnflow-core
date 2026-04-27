@@ -2,10 +2,12 @@
 
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using TurnFlow.Core.Actions;
 using TurnFlow.Core.Characters;
 using TurnFlow.Core.Infos;
+using TurnFlow.Core.Managers.Engines;
 using TurnFlow.Core.Managers.Handles;
 using TurnFlow.Core.Triggers;
 
@@ -59,8 +61,10 @@ public abstract class Effect : IEffect
             throw new Exception("Effect must have either a source action or trigger.");
         }
 
-        Execute(engine, info);
+        List<TriggerParams> tp = Execute(engine, info);
+        engine.TriggerAll(tp);
+
     }
 
-    protected abstract void Execute(IEffectHandle engine, IInfo info);
+    protected abstract List<TriggerParams> Execute(IEffectHandle engine, IInfo info);
 }

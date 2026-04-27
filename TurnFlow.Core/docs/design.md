@@ -150,15 +150,6 @@ Primary:
 - action_target_exclude_allies
 - action_target_exclude_enemies
 
-#### Damage Change Modifers
-
-Determines the damage_change_type of a damaging effect. if off, overrides on. 
-
-// todo: switch to a priority system instead of static on/off. this currently will have wierd effects with mulitple sources of change.
-
-Primary:
-- damage_change_{changeType}_on
-- damage_change_{changeType}_off
 
 #### Damage Element Modifiers
 
@@ -221,6 +212,9 @@ Damage Elements:
 Damage Amounts:
 - on_damage_amount_calc_open
 - on_damage_amount_calc_close
+Damage Execute:
+- on_damage_execute_open
+- on_damage_execute_close
 
 #### Damage / Healing Trigger Types
 

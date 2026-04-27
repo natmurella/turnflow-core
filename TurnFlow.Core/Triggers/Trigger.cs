@@ -1,19 +1,21 @@
 
 
 
+using System.Collections.Generic;
 using TurnFlow.Core.Characters;
 using TurnFlow.Core.Infos;
+using TurnFlow.Core.Utility;
 
 namespace TurnFlow.Core.Triggers;
 
 public abstract class Trigger : ITrigger
 {
-    protected string triggerType;
+    protected SymmetricDictionary<string, string> triggerType;
     protected int duration;
 
-    public Trigger(string triggerType, int duration = 1)
+    public Trigger(int duration = 1)
     {
-        this.triggerType = triggerType;
+        this.triggerType = new SymmetricDictionary<string, string>();
         this.duration = duration;
     }
 
@@ -22,13 +24,10 @@ public abstract class Trigger : ITrigger
         return duration <= 0;
     }
 
-    public string GetTriggerType()
+    public HashSet<string> GetTriggerType()
     {
-        return triggerType;
+        return triggerType.GetValues();
     }
-    public virtual void Fire(string triggerType, IInfo info)
-    {
-        ICharacter target = info.ToCharacter();
-        // todo
-    }
+
+    public abstract void Fire(string triggerType, IInfo info);
 }

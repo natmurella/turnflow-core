@@ -11,4 +11,6 @@ public interface IExecuteEffectHandle : IEffectHandle
         string triggerType,
         IInfo info
     );
+
+    public void TriggerAll(List<TriggerParams> triggerParams);
 }
