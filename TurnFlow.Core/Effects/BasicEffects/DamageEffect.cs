@@ -15,7 +15,7 @@ using TurnFlow.Core.Triggers;
 
 namespace TurnFlow.Core.Effects.BasicEffects;
 
-public abstract class DamageEffect : IEffect
+public class DamageEffect : IEffect
 {
     private ICharacter source;
     private ICharacter target;

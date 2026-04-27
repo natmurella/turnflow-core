@@ -24,7 +24,7 @@ public abstract class Trigger : ITrigger
         return duration <= 0;
     }
 
-    public HashSet<string> GetTriggerType()
+    public HashSet<string> GetTriggerTypes()
     {
         return triggerType.GetValues();
     }

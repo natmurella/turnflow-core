@@ -5,10 +5,12 @@
 using System.Collections.Generic;
 using TurnFlow.Core.Actions;
 using TurnFlow.Core.Characters;
+using TurnFlow.Core.Components.Plans.StatPlans;
 using TurnFlow.Core.Effects;
 using TurnFlow.Core.Infos;
 using TurnFlow.Core.Managers.Handles;
 using TurnFlow.Core.Triggers;
+using TurnFlow.Core.Triggers.SystemTriggers;
 
 namespace TurnFlow.Core.Managers.Engines;
 
@@ -23,25 +25,35 @@ public class TriggerEngine : ITriggerEngine, IEffectHandle, IActionHandle, IExec
         this.effectStack = new Stack<IEffect>();
     }
 
+    public void SetupSystemTriggers(DamageChangePlan damageChangePlan)
+    {
+        SystemDamageChangeTrigger sdct = new SystemDamageChangeTrigger(damageChangePlan);
+        RegisterTrigger(sdct);
+    }
+
     public void RegisterTrigger(
         ITrigger trigger
     ) 
     {
-        string t_type = trigger.GetTriggerType();
-        if (!triggerList.ContainsKey(t_type))
-        {
-            triggerList[t_type] = new List<ITrigger>();
-        }
 
-        triggerList[t_type].Add(trigger);
+        HashSet<string> t_types = trigger.GetTriggerTypes();
+        foreach (string t_type in t_types)
+        {
+            if (!triggerList.ContainsKey(t_type))
+            {
+                triggerList[t_type] = new List<ITrigger>();
+            }
+
+            triggerList[t_type].Add(trigger);
+        }
     }
 
     public void RegisterEffect(
-        IEffect effect,
-        IAction sourceAction
+        IEffect effect
     )
     {
         effectStack.Push(effect);
+        this.ExecuteEffects();
     }
 
     public void Trigger(
@@ -88,6 +100,15 @@ public class TriggerEngine : ITriggerEngine, IEffectHandle, IActionHandle, IExec
                 triggerParams.triggerType,
                 triggerParams.info
             );
+        }
+    }
+
+    private void ExecuteEffects()
+    {
+        while (effectStack.Count > 0)
+        {
+            IEffect effect = effectStack.Pop();
+            effect.ExecuteEffect(this);
         }
     }
 }

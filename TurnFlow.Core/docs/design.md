@@ -150,6 +150,12 @@ Primary:
 - action_target_exclude_allies
 - action_target_exclude_enemies
 
+#### Damage Change Modifiers
+
+Determines the damage_change_type of a damaging or healing effect. if off, overrides on.
+
+Primary: 
+- damage_change  // bubble<string>
 
 #### Damage Element Modifiers
 
@@ -158,16 +164,17 @@ Determines the damage_element_type of a damaging effect. if off, overrides on.
 // todo: same issue.
 
 Primary:
-- damage_element_{elementType}_on
-- damage_element_{elementType}_off
+- damage_element  // bubble<string>
 
 #### Damage / Healing Bar Hitting Modifiers
+
+IMPORTANT: damage change decision uses this now.
 
 Determines which bars are hit by a damaging or healing effect. all damage/healing actions must get information from these.
 Uses bubble components to determine whether the bar is included.
 
 Primary:
-- damage_hit_bar_{barName}_include
+- damage_hit_bar_{barName}_include  // bubble<int>
 
 #### Damage / Healing Calculation Modifiers
 

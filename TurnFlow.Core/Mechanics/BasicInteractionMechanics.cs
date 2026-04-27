@@ -37,15 +37,15 @@ public static class BasicInteractionMechanics
         foreach (string bar in barsOrdered)
         {
             // skip non included bars
-            int hitBar = source.Read("damage_hit_bar_" + bar + "_include");
+            int hitBar = source.Read<int>("damage_hit_bar_" + bar + "_include");
             if (hitBar < 1)
             {
                 continue;
             }
 
             // apply damage or heal
-            int barCur = target.Read($"bar_cur_{bar}");
-            int barMax = target.Read($"bar_max_{bar}");
+            int barCur = target.Read<int>($"bar_cur_{bar}");
+            int barMax = target.Read<int>($"bar_max_{bar}");
             int damage;
             int overDamage;
             string barDirectionPrefix;

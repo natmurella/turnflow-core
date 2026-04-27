@@ -7,11 +7,11 @@ using TurnFlow.Core.Components.Plans.Processors;
 namespace TurnFlow.Core.Components;
 
 
-public class BubbleComponent : IBubbleComponent
+public class StringBubbleComponent : IBubbleComponent<string>
 {
-    private int value;
-    private SortedSet<(int priority, long timestamp, int id, int value)> sources;
-    private Dictionary<(object source, int priority, int value), List<(int id, long timestamp)>> sourceIds;
+    private string value;
+    private SortedSet<(int priority, long timestamp, int id, string value)> sources;
+    private Dictionary<(object source, int priority, string value), List<(int id, long timestamp)>> sourceIds;
     private int nextId;
 
     private int getNextId()
@@ -19,20 +19,20 @@ public class BubbleComponent : IBubbleComponent
         return nextId++;
     }
 
-    public BubbleComponent()
+    public StringBubbleComponent()
     {
-        this.value = 0;
-        this.sources = new SortedSet<(int priority, long timestamp, int id, int value)>();
-        this.sourceIds = new Dictionary<(object source, int priority, int value), List<(int id, long timestamp)>>();
+        this.value = "empty";
+        this.sources = new SortedSet<(int priority, long timestamp, int id, string value)>();
+        this.sourceIds = new Dictionary<(object source, int priority, string value), List<(int id, long timestamp)>>();
         this.nextId = 0;
     }
 
-    public int Read()
+    public string Read()
     {
         return this.value;
     }
 
-    public void Add(int value, object source, int priority=0)
+    public void Add(string value, object source, int priority=0)
     {
         if (source == null)
         {
@@ -55,7 +55,7 @@ public class BubbleComponent : IBubbleComponent
     }
 
     // returns whether the final values is 0 or not.
-    public bool Remove(int value, object source, int priority=0)
+    public bool Remove(string value, object source, int priority=0)
     {
         if (source == null)
         {
@@ -79,8 +79,7 @@ public class BubbleComponent : IBubbleComponent
         sources.Remove((priority, ts, id, value));
         if (sources.Count == 0)
         {
-            this.value = 0;
-            return true;
+            throw new InvalidOperationException($"StringBubbleComponent.Remove: Attempting to remove from empty bubble component.");
         }
         else
         {

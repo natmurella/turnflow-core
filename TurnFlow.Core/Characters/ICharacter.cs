@@ -8,5 +8,6 @@ namespace TurnFlow.Core.Characters;
 public interface ICharacter
 {
     public string GetName();
+    public void ResetBars();
     public IComponentManager GetComponentManager();
 }

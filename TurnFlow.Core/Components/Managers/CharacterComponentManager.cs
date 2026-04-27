@@ -44,6 +44,16 @@ public class CharacterComponentManager : BaseComponentManager
         }
         // set default multiplier to 100%
         this.Add("damage_add_mult", 100);
+
+        // damage change modifiers
+        string damageChangeBubble = "damage_change";
+        StringBubbleComponent dcb = new StringBubbleComponent();
+        this.stringBubbleComponents[damageChangeBubble] = dcb;
+
+        // damage element modifiers
+        string damageElementBubble = "damage_element";
+        StringBubbleComponent db = new StringBubbleComponent();
+        this.stringBubbleComponents[damageElementBubble] = db;
     }
 
     private void CompileStatPlan(StatPlan statPlan)
@@ -168,8 +178,8 @@ public class CharacterComponentManager : BaseComponentManager
 
             // create bar include bubbles
             string barIncludeBubbleComponentName = $"damage_hit_bar_{barName}_include";
-            BubbleComponent b = new BubbleComponent();
-            this.bubbleComponents[barIncludeBubbleComponentName] = b;
+            IntBubbleComponent b = new IntBubbleComponent();
+            this.intBubbleComponents[barIncludeBubbleComponentName] = b;
         }
 
         // add enum for bars

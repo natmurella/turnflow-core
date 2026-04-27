@@ -18,28 +18,28 @@ public class BarProcessor : IProcessor
 
     public int Recalculate(IComponentManager componentManager)
     {
-        int base_add_mult = componentManager.Read(componentsToUse["add_mult"]);
+        int base_add_mult = componentManager.Read<int>(componentsToUse["add_mult"]);
 
         if (base_add_mult == 0)
         {
             return 0;
         }
 
-        int base_add_flat = componentManager.Read(componentsToUse["add_flat"]);
-        int base_min_flat = componentManager.Read(componentsToUse["min_flat"]);
-        int base_min_mult = componentManager.Read(componentsToUse["min_mult"]);
+        int base_add_flat = componentManager.Read<int>(componentsToUse["add_flat"]);
+        int base_min_flat = componentManager.Read<int>(componentsToUse["min_flat"]);
+        int base_min_mult = componentManager.Read<int>(componentsToUse["min_mult"]);
 
         // add the multiplier by state to add flat
         string prefix = componentsToUse["prefix"];
         foreach (string stat in componentManager.GetEnum("stats"))
         {
-            int add_mult = componentManager.Read($"{prefix}_{stat}_add_mult");
+            int add_mult = componentManager.Read<int>($"{prefix}_{stat}_add_mult");
             if (add_mult == 0)
             {
                 continue;
             }
 
-            int stat_value = componentManager.Read($"stat_{stat}");
+            int stat_value = componentManager.Read<int>($"stat_{stat}");
             if (stat_value == 0)
             {
                 continue;

@@ -16,8 +16,7 @@ public interface ITriggerEngine
     );
 
     public void RegisterEffect(
-        IEffect effect,
-        IAction sourceAction
+        IEffect effect
     );
 
     public void Trigger(

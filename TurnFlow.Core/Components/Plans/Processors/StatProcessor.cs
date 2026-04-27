@@ -19,7 +19,7 @@ public class StatProcessor : IProcessor
     public int Recalculate(IComponentManager componentManager)
     {
         int flat = Math.Max(
-            componentManager.Read(componentsToUse["add_flat"]) - componentManager.Read(componentsToUse["min_flat"]),
+            componentManager.Read<int>(componentsToUse["add_flat"]) - componentManager.Read<int>(componentsToUse["min_flat"]),
             0
         );
 
@@ -29,7 +29,7 @@ public class StatProcessor : IProcessor
         }
 
         int mult = Math.Max(
-            componentManager.Read(componentsToUse["add_mult"]) - componentManager.Read(componentsToUse["min_mult"]),
+            componentManager.Read<int>(componentsToUse["add_mult"]) - componentManager.Read<int>(componentsToUse["min_mult"]),
             0
         );
 

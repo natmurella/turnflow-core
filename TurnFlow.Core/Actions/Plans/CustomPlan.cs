@@ -1,27 +1,20 @@
 
 
 using System.Collections.Generic;
+using TurnFlow.Core.Effects.Plans;
 
 namespace TurnFlow.Core.Actions.Plans;
 
 public struct CustomPlan
 {
-    public bool isBarChange;
-    public BarChangeDef? barChangeDef; // only used if isBarChange is true
+    public bool isDamage;
+    public DamageEffectPlan? damageEffectPlan; // only used if isDamage is true
 
     public bool isBuff;
     public BuffDef? buffDef; // only used if isBuff is true
 
     public bool isDebuff;
     public DebuffDef? debuffDef; // only used if isDebuff is true
-}
-
-public struct BarChangeDef
-{
-    public ChangeDirectionType changeDirection;
-    public int changeAmount;
-    public string damageChangeTypeName;
-    public string damageElementTypeName;
 }
 
 public enum ChangeDirectionType

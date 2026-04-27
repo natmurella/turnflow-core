@@ -9,6 +9,6 @@ namespace TurnFlow.Core.Triggers;
 public interface ITrigger
 {
     public bool IsDurationZero();
-    public HashSet<string> GetTriggerType();
+    public HashSet<string> GetTriggerTypes();
     public void Fire(string triggerType, IInfo info);
 }

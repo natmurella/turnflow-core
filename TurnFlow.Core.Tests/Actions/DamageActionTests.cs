@@ -1,9 +1,15 @@
 
+using TurnFlow.Core.Actions;
+using TurnFlow.Core.Actions.Plans;
+using TurnFlow.Core.Characters;
 using TurnFlow.Core.Components;
 using TurnFlow.Core.Components.Managers;
 using TurnFlow.Core.Components.Plans.StatPlans;
+using TurnFlow.Core.Effects.BasicEffects;
+using TurnFlow.Core.Effects.Plans;
+using TurnFlow.Core.Managers.Engines;
 
-namespace TurnFlow.Core.Tests.Components.ComponentManagerTests;
+namespace TurnFlow.Core.Tests.Actions.DamageActionTests;
 
 
 public static class SimplePlans
@@ -125,6 +131,90 @@ public static class SimplePlans
             }
         };
     }
+
+    public static CostPlan GetActivateCostPlan()
+    {
+        return new CostPlan()
+        {
+            barCosts = new List<BarCostDef>()
+            {
+                new BarCostDef() { barName = "mana", costValue = 1 },
+            },
+            resourceCosts = new List<ResourceCostDef>()
+            {
+                
+            }
+        };
+    }
+
+    public static CostPlan GetEquipCostPlan()
+    {
+        return new CostPlan()
+        {
+            barCosts = new List<BarCostDef>()
+            {
+                
+            },
+            resourceCosts = new List<ResourceCostDef>()
+            {
+                new ResourceCostDef() { resourceName = "gold", costValue = 1 },
+            }
+        };
+    }
+
+    public static CostPlan GetUnequipCostPlan()
+    {
+        return new CostPlan()
+        {
+            barCosts = new List<BarCostDef>()
+            {
+                
+            },
+            resourceCosts = new List<ResourceCostDef>()
+            {
+                new ResourceCostDef() { resourceName = "gold", costValue = 1 },
+            }
+        };
+    }
+
+    public static TargetPlan GetTargetPlan()
+    {
+        return new TargetPlan()
+        {
+            canTargetSelf = true,
+            canTargetAllies = true,
+            canTargetEnemies = true,
+        };
+    }
+
+    private static DamageEffectPlan GetDamageEffectPlan()
+    {
+        return new DamageEffectPlan()
+        {
+            damageChangeTypeName = "life",
+            damageElementName = "physical",
+            damageDirectionType = DamageDirectionType.Damage,
+            baseAmount = 5,
+            statSourceScalingDict = new Dictionary<string, int>()
+            {
+                { "vitality", 2 },
+                // { "intelligence", 1 },
+            }
+        };
+    }
+
+    public static CustomPlan GetCustomPlan()
+    {
+        return new CustomPlan()
+        {
+            isDamage = true,
+            damageEffectPlan = GetDamageEffectPlan(),
+            isBuff = false,
+            buffDef = null,
+            isDebuff = false,
+            debuffDef = null,
+        };
+    }
 }
 
 
@@ -133,18 +223,27 @@ public static class SimplePlans
 
 
 
-public class ComponentTests
+public class DamageActionTests
 {
     [Fact]
-    public void SimpleComponentTest()
+    public void DamageActionTest()
     {
+        // define plans
         StatPlan statPlan = SimplePlans.GetStatPlan();
         BarPlan barPlan = SimplePlans.GetBarPlan();
         ResourcePlan resourcePlan = SimplePlans.GetResourcePlan();
         DamageChangePlan damageChangePlan = SimplePlans.GetDamageChangePlan();
         DamageElementPlan damageElementPlan = SimplePlans.GetDamageElementPlan();
 
-        CharacterComponentManager ccm = new CharacterComponentManager(
+        // define component managers
+        CharacterComponentManager ccm1 = new CharacterComponentManager(
+            statPlan, 
+            barPlan, 
+            resourcePlan,
+            damageChangePlan,
+            damageElementPlan
+        );
+        CharacterComponentManager ccm2 = new CharacterComponentManager(
             statPlan, 
             barPlan, 
             resourcePlan,
@@ -152,32 +251,50 @@ public class ComponentTests
             damageElementPlan
         );
 
-        // define the vitality stat
-        ccm.Add("stat_vitality_add_flat", 15);
-        ccm.Add("stat_vitality_min_flat", 5);
-        ccm.Add("stat_vitality_add_mult", 100);
-        ccm.Add("stat_vitality_min_mult", 50);
+        // define characters
+        Character c1 = new Character("c1", ccm1);
+        Character c2 = new Character("c2", ccm2);
 
-        // check vitality stat calculation
-        Assert.Equal(15, ccm.Read<int>("stat_vitality"));
+        // define trigger engine
+        TriggerEngine te = new TriggerEngine();
+        te.SetupSystemTriggers(damageChangePlan);
 
-        // define the intelligence stat
-        ccm.Add("stat_intelligence_add_flat", 10);
-        ccm.Add("stat_intelligence_min_flat", 0);
-        ccm.Add("stat_intelligence_add_mult", 50);
-        ccm.Add("stat_intelligence_min_mult", 100);
+        // define damage action
+        CustomAction a1 = new CustomAction(
+            SimplePlans.GetActivateCostPlan(),
+            SimplePlans.GetEquipCostPlan(),
+            SimplePlans.GetUnequipCostPlan(),
+            SimplePlans.GetTargetPlan(),
+            SimplePlans.GetCustomPlan()
+        );
 
-        // check intelligence stat calculation
-        Assert.Equal(5, ccm.Read<int>("stat_intelligence"));
+        // set characters vit and int
+        ccm1.Add("stat_vitality_add_flat", 5);
+        ccm1.Add("stat_intelligence_add_flat", 10);
+        ccm2.Add("stat_vitality_add_flat", 5);
+        ccm2.Add("stat_intelligence_add_flat", 10);
 
-        // check health bar max calculation
-        Assert.Equal(40, ccm.Read<int>("bar_max_health"));
+        // check initial health and mana
+        Assert.Equal(20, ccm1.Read<int>("bar_max_health"));
+        Assert.Equal(35, ccm1.Read<int>("bar_max_mana"));
+        Assert.Equal(20, ccm2.Read<int>("bar_max_health"));
+        Assert.Equal(35, ccm2.Read<int>("bar_max_mana"));
 
-        // check mana bar max calculation
-        Assert.Equal(20, ccm.Read<int>("bar_max_mana"));
+        // reset character bars
+        c1.ResetBars();
+        c2.ResetBars();
 
-        // check stamina bar max calculation
-        Assert.Equal(100, ccm.Read<int>("bar_max_stamina"));
+        // check current health and mana
+        Assert.Equal(20, ccm1.Read<int>("bar_cur_health"));
+        Assert.Equal(35, ccm1.Read<int>("bar_cur_mana"));
+        Assert.Equal(20, ccm2.Read<int>("bar_cur_health"));
+        Assert.Equal(35, ccm2.Read<int>("bar_cur_mana"));
+
+        // activate damage action from c1 to c2
+        a1.Activate(te, c1, c2);
+
+        // check health after damage        
+        Assert.Equal(5, ccm2.Read<int>("bar_cur_health"));
     }
 
 }

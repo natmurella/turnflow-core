@@ -1,7 +1,10 @@
 
 
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
+using TurnFlow.Core.Components.Plans.StatPlans;
 
 namespace TurnFlow.Core.Components.Managers;
 
@@ -11,7 +14,8 @@ public abstract class BaseComponentManager : IComponentManager
     protected Dictionary<string, IComponent> components;
     protected Dictionary<string, IComponent> sparseComponents;
     protected Dictionary<string, ComponentDependencyGroup> dependencyGroups;
-    protected Dictionary<string, IBubbleComponent> bubbleComponents;
+    protected Dictionary<string, IBubbleComponent<int>> intBubbleComponents;
+    protected Dictionary<string, IBubbleComponent<string>> stringBubbleComponents;
     protected Trie sparsePrefixTrie;
     protected Dictionary<string, List<string>> enums;
 
@@ -20,6 +24,8 @@ public abstract class BaseComponentManager : IComponentManager
         components = new Dictionary<string, IComponent>();
         sparseComponents = new Dictionary<string, IComponent>();
         dependencyGroups = new Dictionary<string, ComponentDependencyGroup>();
+        intBubbleComponents = new Dictionary<string, IBubbleComponent<int>>();
+        stringBubbleComponents = new Dictionary<string, IBubbleComponent<string>>();
         sparsePrefixTrie = new Trie();
         enums = new Dictionary<string, List<string>>();
     }
@@ -89,53 +95,138 @@ public abstract class BaseComponentManager : IComponentManager
         }
     }
 
-    public void AddToBubble(string componentName, int value, object source, int priority=0)
+    public void AddToBubble<T>(string componentName, T value, object source, int priority=0)
     {
-        IBubbleComponent bubbleComponent;
-        if (bubbleComponents.TryGetValue(componentName, out bubbleComponent))
+        
+        if (value is int intValue)
         {
-            bubbleComponent.Add(value, source, priority);
+            IBubbleComponent<int> intBubbleComponent;
+            if (this.intBubbleComponents.TryGetValue(componentName, out intBubbleComponent))
+            {
+                intBubbleComponent.Add(intValue, source, priority);
+            }
+            else
+            {
+                throw new KeyNotFoundException($"ComponentManager.AddToBubble: {componentName} not found.");
+            }
+        }
+        else if (value is string strValue)
+        {
+            IBubbleComponent<string> stringBubbleComponent;
+            if (this.stringBubbleComponents.TryGetValue(componentName, out stringBubbleComponent))
+            {
+                stringBubbleComponent.Add(strValue, source, priority);
+            }
+            else
+            {
+                throw new KeyNotFoundException($"ComponentManager.AddToBubble: {componentName} not found.");
+            }
         }
         else
         {
-            throw new KeyNotFoundException($"ComponentManager.AddToBubble: {componentName} not found.");
+            throw new ArgumentException($"ComponentManager.AddToBubble: Unsupported bubble component type {typeof(T)}.");
         }
+        
     }
 
-    public void RemoveFromBubble(string componentName, int value, object source, int priority=0)
+    public void RemoveFromBubble<T>(string componentName, T value, object source, int priority=0)
     {
-        IBubbleComponent bubbleComponent;
-        if (bubbleComponents.TryGetValue(componentName, out bubbleComponent))
+        if (value is int intValue)
         {
-            bubbleComponent.Remove(value, source, priority);
+            IBubbleComponent<int> intBubbleComponent;
+            if (this.intBubbleComponents.TryGetValue(componentName, out intBubbleComponent))
+            {
+                intBubbleComponent.Remove(intValue, source, priority);
+            }
+            else
+            {
+                throw new KeyNotFoundException($"ComponentManager.RemoveFromBubble: {componentName} not found.");
+            }
+        }
+        else if (value is string strValue)
+        {
+            IBubbleComponent<string> stringBubbleComponent;
+            if (this.stringBubbleComponents.TryGetValue(componentName, out stringBubbleComponent))
+            {
+                stringBubbleComponent.Remove(strValue, source, priority);
+            }
+            else
+            {
+                throw new KeyNotFoundException($"ComponentManager.RemoveFromBubble: {componentName} not found.");
+            }
         }
         else
         {
-            throw new KeyNotFoundException($"ComponentManager.RemoveFromBubble: {componentName} not found.");
+            throw new ArgumentException($"ComponentManager.RemoveFromBubble: Unsupported bubble component type {typeof(T)}.");
         }
      }
 
-    public int Read(string componentName)
+    public T Read<T>(string componentName)
     {
         IComponent component;
+
         // if component exists, read from it
         if (components.TryGetValue(componentName, out component))
         {
-            return component.Read(this);
+            return (T)(object)component.Read(this);
         }
         // if sparse component exists, read from it
         else if (sparseComponents.TryGetValue(componentName, out component))
         {
-            return component.Read(this);
+            return (T)(object)component.Read(this);
         }
         // if matching prefix, return 0
         else if (sparsePrefixTrie.HasPrefix(componentName))
         {
-            return 0;
+            return (T)(object)0;
+        }
+        else if (this.intBubbleComponents.TryGetValue(componentName, out var intBubbleComponent))
+        {
+            return (T)(object)intBubbleComponent.Read();
+        }
+        else if (this.stringBubbleComponents.TryGetValue(componentName, out var stringBubbleComponent))
+        {
+            return (T)(object)stringBubbleComponent.Read();
         }
         else
         {
             throw new KeyNotFoundException($"ComponentManager.Read: {componentName} not found.");
+        }
+    }
+
+    public void ResetBar(string barName, BarResetType barResetType)
+    {
+        string barCurName = $"bar_cur_{barName}";
+        string barMaxName = $"bar_max_{barName}";
+
+        if (barResetType == BarResetType.toMaximum)
+        {
+            int barMax = Read<int>(barMaxName);
+            int barCur = Read<int>(barCurName);
+            if (barCur <= barMax)
+            {
+                Add(barCurName, barMax - barCur);
+            }
+            else
+            {
+                Remove(barCurName, barCur - barMax);
+            }
+        }
+        else if (barResetType == BarResetType.toMinimum)
+        {
+            int barCur = Read<int>(barCurName);
+            if (barCur > 0)
+            {
+                Remove(barCurName, barCur);
+            }
+        }
+        else if (barResetType == BarResetType.noChange)
+        {
+            
+        }
+        else
+        {
+            throw new InvalidDataException($"ComponentManager.ResetBar: Invalid BarResetType {barResetType}.");
         }
     }
 
