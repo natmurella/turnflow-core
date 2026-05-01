@@ -75,7 +75,7 @@ public  class Info : IInfo
         this.damageChangeType = info.GetDamageChangeType();
         this.damageElementType = info.GetDamageElementType();
         this.damageAmount = info.GetDamageAmount();
-        this.damageBar = info.GetDamageBar();
+        this.damageBar = info.GetNullDamageBar();
     }
 
     // general
@@ -201,6 +201,11 @@ public  class Info : IInfo
         {
             throw new Exception("Damage bar is not set");
         }
+        return damageBar;
+    }
+
+    public string? GetNullDamageBar()
+    {
         return damageBar;
     }
     

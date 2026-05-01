@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using TurnFlow.Core.Actions.Plans;
 using TurnFlow.Core.Characters;
 using TurnFlow.Core.Components.Managers;
 using TurnFlow.Core.Effects.Plans;
@@ -14,7 +15,7 @@ namespace TurnFlow.Core.Mechanics;
 public static class BasicInteractionMechanics
 {
     
-    public static List<TriggerParams> DealDamageOrHeal(
+    public static List<TriggerParams> ApplyDamageHeal(
         IInfo info
     )
     {
@@ -111,4 +112,37 @@ public static class BasicInteractionMechanics
         return triggers;
     }
 
+    public static void ApplyActionCost(ICharacter source, CostPlan costPlan)
+    {
+        IComponentManager cm = source.GetComponentManager();
+
+        // apply bar costs
+        foreach (BarCostDef barCost in costPlan.barCosts)
+        {
+            cm.Remove($"bar_cur_{barCost.barName}", barCost.costValue);
+        }
+
+        // apply resource costs
+        foreach (ResourceCostDef resourceCost in costPlan.resourceCosts)
+        {
+            cm.Remove($"resource_{resourceCost.resourceName}", resourceCost.costValue);
+        }
+    }
+
+    public static void RefundActionCost(ICharacter source, CostPlan costPlan)
+    {
+        IComponentManager cm = source.GetComponentManager();
+
+        // refund bar costs
+        foreach (BarCostDef barCost in costPlan.barCosts)
+        {
+            cm.Add($"bar_cur_{barCost.barName}", barCost.costValue);
+        }
+
+        // refund resource costs
+        foreach (ResourceCostDef resourceCost in costPlan.resourceCosts)
+        {
+            cm.Add($"resource_{resourceCost.resourceName}", resourceCost.costValue);
+        }
+    }
 }

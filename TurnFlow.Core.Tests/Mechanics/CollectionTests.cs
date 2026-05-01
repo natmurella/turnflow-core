@@ -8,8 +8,9 @@ using TurnFlow.Core.Components.Plans.StatPlans;
 using TurnFlow.Core.Effects.BasicEffects;
 using TurnFlow.Core.Effects.Plans;
 using TurnFlow.Core.Managers.Engines;
+using TurnFlow.Core.Mechanics;
 
-namespace TurnFlow.Core.Tests.Actions.DamageActionTests;
+namespace TurnFlow.Core.Tests.Mechanics.CollectionMechanicTests;
 
 
 public static class SimplePlans
@@ -132,62 +133,7 @@ public static class SimplePlans
         };
     }
 
-    public static CostPlan GetActivateCostPlan()
-    {
-        return new CostPlan()
-        {
-            barCosts = new List<BarCostDef>()
-            {
-                new BarCostDef() { barName = "mana", costValue = 1 },
-            },
-            resourceCosts = new List<ResourceCostDef>()
-            {
-                
-            }
-        };
-    }
-
-    public static CostPlan GetEquipCostPlan()
-    {
-        return new CostPlan()
-        {
-            barCosts = new List<BarCostDef>()
-            {
-                
-            },
-            resourceCosts = new List<ResourceCostDef>()
-            {
-                new ResourceCostDef() { resourceName = "gold", costValue = 1 },
-            }
-        };
-    }
-
-    public static CostPlan GetUnequipCostPlan()
-    {
-        return new CostPlan()
-        {
-            barCosts = new List<BarCostDef>()
-            {
-                
-            },
-            resourceCosts = new List<ResourceCostDef>()
-            {
-                new ResourceCostDef() { resourceName = "gold", costValue = 1 },
-            }
-        };
-    }
-
-    public static TargetPlan GetTargetPlan()
-    {
-        return new TargetPlan()
-        {
-            canTargetSelf = true,
-            canTargetAllies = true,
-            canTargetEnemies = true,
-        };
-    }
-
-    private static DamageEffectPlan GetDamageEffectPlan()
+    public static DamageEffectPlan GetDamageEffectPlan()
     {
         return new DamageEffectPlan()
         {
@@ -202,19 +148,6 @@ public static class SimplePlans
             }
         };
     }
-
-    public static CustomPlan GetCustomPlan()
-    {
-        return new CustomPlan()
-        {
-            isDamage = true,
-            damageEffectPlan = GetDamageEffectPlan(),
-            isBuff = false,
-            buffDef = null,
-            isDebuff = false,
-            debuffDef = null,
-        };
-    }
 }
 
 
@@ -223,10 +156,10 @@ public static class SimplePlans
 
 
 
-public class DamageActionTests
+public class CollectionMechanicTests
 {
     [Fact]
-    public void DamageActionTest()
+    public void CalculateDamageAmountTest()
     {
         // define plans
         StatPlan statPlan = SimplePlans.GetStatPlan();
@@ -260,13 +193,7 @@ public class DamageActionTests
         te.SetupSystemTriggers(damageChangePlan);
 
         // define damage action
-        CustomAction a1 = new CustomAction(
-            SimplePlans.GetActivateCostPlan(),
-            SimplePlans.GetEquipCostPlan(),
-            SimplePlans.GetUnequipCostPlan(),
-            SimplePlans.GetTargetPlan(),
-            SimplePlans.GetCustomPlan()
-        );
+        DamageEffectPlan dep = SimplePlans.GetDamageEffectPlan();
 
         // set characters vit and int
         ccm1.Add("stat_vitality_add_flat", 5);
@@ -290,11 +217,13 @@ public class DamageActionTests
         Assert.Equal(20, ccm2.Read<int>("bar_cur_health"));
         Assert.Equal(35, ccm2.Read<int>("bar_cur_mana"));
 
-        // activate damage action from c1 to c2
-        a1.Activate(te, c1, c2);
+        // collect damage amount
+        int damageAmount = BasicCollectionMechanics.CalculateDamageAmount(
+            c1, c2, dep
+        );
 
-        // check health after damage        
-        Assert.Equal(5, ccm2.Read<int>("bar_cur_health"));
+        // checl damage amount
+        Assert.Equal(15, damageAmount);
     }
 
 }

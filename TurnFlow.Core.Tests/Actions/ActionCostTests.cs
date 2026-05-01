@@ -9,7 +9,7 @@ using TurnFlow.Core.Effects.BasicEffects;
 using TurnFlow.Core.Effects.Plans;
 using TurnFlow.Core.Managers.Engines;
 
-namespace TurnFlow.Core.Tests.Actions.DamageActionTests;
+namespace TurnFlow.Core.Tests.Actions.ActionCostTests;
 
 
 public static class SimplePlans
@@ -139,6 +139,7 @@ public static class SimplePlans
             barCosts = new List<BarCostDef>()
             {
                 new BarCostDef() { barName = "mana", costValue = 1 },
+                new BarCostDef() { barName = "health", costValue = 2 },
             },
             resourceCosts = new List<ResourceCostDef>()
             {
@@ -223,10 +224,10 @@ public static class SimplePlans
 
 
 
-public class DamageActionTests
+public class ActionCostTests
 {
     [Fact]
-    public void DamageActionTest()
+    public void SimpleActionCostTest()
     {
         // define plans
         StatPlan statPlan = SimplePlans.GetStatPlan();
@@ -273,12 +274,14 @@ public class DamageActionTests
         ccm1.Add("stat_intelligence_add_flat", 10);
         ccm2.Add("stat_vitality_add_flat", 5);
         ccm2.Add("stat_intelligence_add_flat", 10);
+        ccm1.Add("resource_gold", 10);
 
         // check initial health and mana
         Assert.Equal(20, ccm1.Read<int>("bar_max_health"));
         Assert.Equal(35, ccm1.Read<int>("bar_max_mana"));
         Assert.Equal(20, ccm2.Read<int>("bar_max_health"));
         Assert.Equal(35, ccm2.Read<int>("bar_max_mana"));
+        Assert.Equal(10, ccm1.Read<int>("resource_gold"));
 
         // reset character bars
         c1.ResetBars();
@@ -290,11 +293,29 @@ public class DamageActionTests
         Assert.Equal(20, ccm2.Read<int>("bar_cur_health"));
         Assert.Equal(35, ccm2.Read<int>("bar_cur_mana"));
 
-        // activate damage action from c1 to c2
+        // can c1 pay cost
+        Assert.True(a1.CanCastTarget(te, c1, c2));
         a1.Activate(te, c1, c2);
 
-        // check health after damage        
-        Assert.Equal(5, ccm2.Read<int>("bar_cur_health"));
+        // check mana cost spent
+        Assert.Equal(34, ccm1.Read<int>("bar_cur_mana"));
+        Assert.Equal(18, ccm1.Read<int>("bar_cur_health"));
+
+        // check equip 
+        Assert.True(a1.IsEquippable(c1));
+        Assert.False(a1.IsEquippable(c2));
+        Assert.False(a1.IsUnequippable(c1));
+        a1.Equip(te, c1);
+
+        // check gold
+        Assert.Equal(9, ccm1.Read<int>("resource_gold"));
+
+        // check unequip
+        Assert.True(a1.IsUnequippable(c1));
+        a1.Unequip(te, c1);
+
+        // check gold refunded
+        Assert.Equal(10, ccm1.Read<int>("resource_gold"));
     }
 
 }

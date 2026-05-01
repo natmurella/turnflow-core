@@ -24,6 +24,7 @@ public class CharacterComponentManager : BaseComponentManager
         CompileResourcePlan(resourcePlan);
         CompileDamageChangePlan(damageChangePlan);
         CompileDamageElementPlan(damageElementPlan);
+        CompileCostModifiers();
     }
 
     private void CompileGeneralPlan()
@@ -188,13 +189,20 @@ public class CharacterComponentManager : BaseComponentManager
 
     private void CompileResourcePlan(ResourcePlan resourcePlan)
     {
+        List<string> resourceEnum = new List<string>();
+
         foreach (var resourceDef in resourcePlan.resources)
         {
             string resourceName = resourceDef.resourceName;
             string componentName = $"resource_{resourceName}";
             Component c = new Component();
             components[componentName] = c;
+
+            resourceEnum.Add(resourceName);
         }
+
+        // add enum for resources
+        this.enums["resources"] = resourceEnum;
     }
 
     private void CompileDamageChangePlan(DamageChangePlan damageChangePlan)
@@ -240,5 +248,56 @@ public class CharacterComponentManager : BaseComponentManager
 
         // add enum for damage element types
         this.enums["damage_elements"] = damageElementEnum;
+    }
+
+    private void CompileCostModifiers()
+    {
+        // bar cost modifiers
+        List<string> bars = this.enums["bars"];
+        foreach (var barName in bars)
+        {
+            string costPrefix = $"bar_cost_{barName}";
+            string addFlatBarCost = $"{costPrefix}_add_flat";
+            string minFlatBarCost = $"{costPrefix}_min_flat";
+            string addMultBarCost = $"{costPrefix}_add_mult";
+            string minMultBarCost = $"{costPrefix}_min_mult";
+
+            Component addFlatComponent = new Component();
+            Component minFlatComponent = new Component();
+            Component addMultComponent = new Component();
+            Component minMultComponent = new Component();
+
+            components[addFlatBarCost] = addFlatComponent;
+            components[minFlatBarCost] = minFlatComponent;
+            components[addMultBarCost] = addMultComponent;
+            components[minMultBarCost] = minMultComponent;
+
+            // add default multiplier of 100%
+            this.Add(addMultBarCost, 100);
+        }
+
+        // resource cost modifiers
+        List<string> resources = this.enums["resources"];
+        foreach (var resourceName in resources)
+        {
+            string costPrefix = $"resource_cost_{resourceName}";
+            string addFlatResourceCost = $"{costPrefix}_add_flat";
+            string minFlatResourceCost = $"{costPrefix}_min_flat";
+            string addMultResourceCost = $"{costPrefix}_add_mult";
+            string minMultResourceCost = $"{costPrefix}_min_mult";
+
+            Component addFlatComponent = new Component();
+            Component minFlatComponent = new Component();
+            Component addMultComponent = new Component();
+            Component minMultComponent = new Component();
+
+            components[addFlatResourceCost] = addFlatComponent;
+            components[minFlatResourceCost] = minFlatComponent;
+            components[addMultResourceCost] = addMultComponent;
+            components[minMultResourceCost] = minMultComponent;
+
+            // add default multiplier of 100%
+            this.Add(addMultResourceCost, 100);
+        }
     }
 }

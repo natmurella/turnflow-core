@@ -41,7 +41,7 @@ public class SystemDamageChangeTrigger : DamageTrigger
 
     protected override void TriggerFire(string triggerType, IDamageInfo info)
     {
-        ICharacter target = info.ToCharacter();
+        ICharacter target = info.FromCharacter();
         string damageChangeType = info.GetDamageChangeType();
         
         if (triggerType == this.triggerType.GetValue("open"))
@@ -60,7 +60,7 @@ public class SystemDamageChangeTrigger : DamageTrigger
 
         foreach (string barName in compiledPlan[damageChangeType])
         {
-            string on_key = $"damage_hit_bar_{damageChangeType}_include";
+            string on_key = $"damage_hit_bar_{barName}_include";
 
             cm.AddToBubble(on_key, 1, this, 0);
         }
@@ -72,7 +72,7 @@ public class SystemDamageChangeTrigger : DamageTrigger
 
         foreach (string barName in compiledPlan[damageChangeType])
         {
-            string on_key = $"damage_hit_bar_{damageChangeType}_include";
+            string on_key = $"damage_hit_bar_{barName}_include";
 
             cm.RemoveFromBubble(on_key, 1, this, 0);
         }

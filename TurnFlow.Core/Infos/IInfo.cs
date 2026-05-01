@@ -26,4 +26,7 @@ public interface IInfo : IGeneralInfo, IDamageInfo
     public void SetDamageElementType(String damageElementType);
     public void SetDamageAmount(int damageAmount);
     public void SetDamageBar(string damageBar);
+
+    // namage info null getters
+    public string? GetNullDamageBar();
 }

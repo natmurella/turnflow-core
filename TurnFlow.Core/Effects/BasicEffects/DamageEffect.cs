@@ -144,6 +144,6 @@ public class DamageEffect : IEffect
 
     private List<TriggerParams> Execute(IInfo info)
     {
-        return BasicInteractionMechanics.DealDamageOrHeal(info);
+        return BasicInteractionMechanics.ApplyDamageHeal(info);
     }
 }

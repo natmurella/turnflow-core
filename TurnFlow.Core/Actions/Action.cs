@@ -2,7 +2,10 @@
 
 using TurnFlow.Core.Actions.Plans;
 using TurnFlow.Core.Characters;
+using TurnFlow.Core.Infos;
+using TurnFlow.Core.Managers.Engines;
 using TurnFlow.Core.Managers.Handles;
+using TurnFlow.Core.Mechanics;
 
 namespace TurnFlow.Core.Actions;
 
@@ -12,6 +15,8 @@ public abstract class Action : IAction
     protected CostPlan baseEquipCostPlan;
     protected CostPlan baseUnequipCostPlan;
     protected TargetPlan baseTargetPlan;
+
+    protected CostPlan? trueEquipCost;
 
     public Action(
         CostPlan activateCost, 
@@ -27,49 +32,62 @@ public abstract class Action : IAction
 
     private CostPlan CalculateTrueCostPlan(ICharacter source, ICharacter target, CostPlan baseCost)
     {
-        // todo trigger: on_action_cost_open
-        // todo
-        return baseCost;
-
-        // todo trigger: on_action_cost_close
+        return CalculateTrueCostPlan(source, baseCost);
     }
 
     private CostPlan CalculateTrueCostPlan(ICharacter source, CostPlan baseCost)
     {
-        // todo trigger: on_action_cost_open
-        // todo
-        return baseCost;
-
-        // todo trigger: on_action_cost_close
+        return BasicCollectionMechanics.CalculateActionCostPlan(source, baseCost);
     }
 
     private bool CanPayCost(ICharacter source, CostPlan costPlan)
     {
-        // todo
-        return true;
+        return BasicCollectionMechanics.ActionCanPayCost(source, costPlan);
     }
 
-    public bool CanCastTarget(ICharacter source, ICharacter target)
+    public bool CanCastTarget(ITriggerEngine engine, ICharacter source, ICharacter target)
     {
-        TargetPlan trueTargetPlan = CalculateTrueTargetPlan(source, baseTargetPlan);
-        bool isValidTarget = IsValidTarget(source, target, trueTargetPlan);
+        IInfo info = new Info(this, source, target);
 
+        // calc target plan
+        engine.Trigger(
+            "on_action_targeting_open",
+            info
+        );
+        TargetPlan trueTargetPlan = CalculateTrueTargetPlan(source, baseTargetPlan);
+        engine.Trigger(
+            "on_action_targeting_close",
+            info
+        );
+
+        // check if targeting valid
+        bool isValidTarget = IsValidTarget(source, target, trueTargetPlan);
         if (!isValidTarget)
         {
             return false;
         }
 
+        // calc cost plan
+        engine.Trigger(
+            "on_action_cost_open",
+            info
+        );
         CostPlan trueCost = CalculateTrueCostPlan(source, target, baseActivateCostPlan);
-        return CanPayCost(source, trueCost);
+        engine.Trigger(
+            "on_action_cost_close",
+            info
+        );
+
+        // check if cost valid
+        bool canPayCost = CanPayCost(source, trueCost);
+
+        return canPayCost;
     }
 
     private TargetPlan CalculateTrueTargetPlan(ICharacter source, TargetPlan baseTargetPlan)
     {
-        // todo trigger: on_action_targeting_open
         // todo
         return baseTargetPlan;
-        
-        // todo trigger: on_action_targeting_close
     }
 
     private bool IsValidTarget(ICharacter source, ICharacter target, TargetPlan targetPlan)
@@ -80,7 +98,12 @@ public abstract class Action : IAction
 
     private void PayCost(ICharacter source, CostPlan costPlan)
     {
-        // todo
+        BasicInteractionMechanics.ApplyActionCost(source, costPlan);
+    }
+
+    private void RefundCost(ICharacter source, CostPlan costPlan)
+    {
+        BasicInteractionMechanics.RefundActionCost(source, costPlan);
     }
 
     public void Activate(IActionHandle engine, ICharacter source, ICharacter target)
@@ -103,6 +126,7 @@ public abstract class Action : IAction
     {
         CostPlan trueCost = CalculateTrueCostPlan(source, baseEquipCostPlan);
         PayCost(source, trueCost);
+        trueEquipCost = trueCost;
 
         // todo trigger: on_action_equip_open
         EquipAction(engine, source);
@@ -111,14 +135,18 @@ public abstract class Action : IAction
 
     public bool IsUnequippable(ICharacter source)
     {
-        CostPlan trueCost = CalculateTrueCostPlan(source, baseUnequipCostPlan);
-        return CanPayCost(source, trueCost);
+        return trueEquipCost != null;
     }
 
     public void Unequip(IActionHandle engine, ICharacter source)
     {
-        CostPlan trueCost = CalculateTrueCostPlan(source, baseUnequipCostPlan);
-        PayCost(source, trueCost);
+        if (trueEquipCost == null)
+        {
+            return;
+        }
+
+        CostPlan trueCost = (CostPlan)trueEquipCost;
+        RefundCost(source, trueCost);
 
         // todo trigger: on_action_unequip_open
         UnequipAction(engine, source);

@@ -63,7 +63,7 @@ Primary:
 - bar_cost_{barName}_min_flat
 - bar_cost_{barName}_add_mult
 - bar_cost_{barName}_min_mult
-Sparse Primary: (prefix: "bar_cost_force_{barName}_")
+<!-- Sparse Primary: (prefix: "bar_cost_force_{barName}_")
 - bar_cost_force_{barName}_force_zero
 Sparse Primary: (prefix: "bar_cost_bar_{barName}_")
 - bar_cost_bar_{barName}_{otherBarName}_add_mult
@@ -72,7 +72,7 @@ Sparse Primary: (prefix: "bar_cost_resource_{barName}_")
 - bar_cost_resource_{barName}_{resourceName}_add_mult
 - bar_cost_resource_{barName}_{resourceName}_min_mult
 secondary:
-- bar_cost_{barName}
+- bar_cost_{barName} -->
 
 ##### Resources
 Primary:
@@ -84,7 +84,7 @@ Primary:
 - resource_cost_{resourceName}_min_flat
 - resource_cost_{resourceName}_add_mult
 - resource_cost_{resourceName}_min_mult
-Sparse Primary: (prefix: "resource_cost_force_{resourceName}_")
+<!-- Sparse Primary: (prefix: "resource_cost_force_{resourceName}_")
 - resource_cost_force_{resourceName}_force_zero
 Sparse Primary: (prefix: "resource_cost_resource_{resourceName}_")
 - resource_cost_resource_{resourceName}_{otherResourceName}_add_mult
@@ -93,7 +93,7 @@ Sparse Primary: (prefix: "resource_cost_bar_{resourceName}_")
 - resource_cost_bar_{resourceName}_{barName}_add_mult
 - resource_cost_bar_{resourceName}_{barName}_min_mult
 Secondary:
-- resource_cost_{resourceName}
+- resource_cost_{resourceName} -->
 
 #### Enum Names
 
@@ -192,12 +192,12 @@ Primary:
 
 #### Action Trigger Types
 
-Costs:
-- on_action_cost_open
-- on_action_cost_close
 Targeting:
 - on_action_targeting_open
 - on_action_targeting_close
+Costs:
+- on_action_cost_open
+- on_action_cost_close
 Activate:
 - on_action_activate_open
 - on_action_activate_close
